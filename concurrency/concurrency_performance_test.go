@@ -15,7 +15,7 @@ type Counter struct {
 }
 
 func (c *Counter) Increment(i int32) {
-	c.value.Add(i)
+	c.value.Add(1)
 }
 
 func (c *Counter) Get() int32 {
@@ -26,7 +26,7 @@ type ShardedCounter struct {
 	shards [14]Counter
 }
 
-func (c *ShardedCounter) ShardedIncrement(idx int) {
+func (c *ShardedCounter) ShardedIncrement(idx int32) {
 	c.shards[idx].value.Add(1)
 }
 
@@ -69,7 +69,7 @@ func BenchmarkShardedCounter(b *testing.B) {
 			defer wg.Done()
 			// bench
 			for j := 0; j < b.N; j++ {
-				counter.ShardedIncrement(i)
+				counter.ShardedIncrement(int32(i))
 			}
 		}()
 	}
