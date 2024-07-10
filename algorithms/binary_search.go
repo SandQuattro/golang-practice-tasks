@@ -59,10 +59,22 @@ func BinarySearch(nums []int, target int) int {
 	return -1 // Число не найдено
 }
 
+func bubble(sl []int) {
+	for i := 0; i < len(sl)-1; i++ {
+		for j := 0; j < len(sl)-i-1; j++ {
+			if sl[j] > sl[j+1] {
+				sl[j], sl[j+1] = sl[j+1], sl[j]
+			}
+		}
+	}
+}
+
 func main() {
-	// массив отсортирован!!
-	nums := []int{-5, 1, 3, 6, 8, 12, 20}
+	// массив должен быть отсортирован!!
+	nums := []int{20, 12, 15, 3, 8, 1}
 	target := 8
+
+	bubble(nums)
 
 	pos := BinarySearch(nums, target)
 
