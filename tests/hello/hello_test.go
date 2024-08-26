@@ -19,3 +19,15 @@ func TestHello(t *testing.T) {
 	}
 
 }
+
+func TestLocalHello(t *testing.T) {
+	for _, want := range []string{"Hello, world", "Hello, World!", "Hello, Go!"} {
+		t.Run(want, func(t *testing.T) {
+			got := localHello()
+			if got != want {
+				t.Errorf("got %q want %q", got, want)
+				t.Fail()
+			}
+		})
+	}
+}
