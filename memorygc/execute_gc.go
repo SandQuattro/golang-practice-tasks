@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"runtime/debug"
 	"runtime/trace"
 )
 
@@ -14,6 +15,10 @@ type MyStruct struct {
 // go tool trace trace.out
 func main() {
 	// отслеживаем изменение в куче
+	debug.SetGCPercent(-1)
+	//debug.SetGCPercent(10)
+	//debug.SetGCPercent(100)
+	//debug.SetGCPercent(1000)
 
 	// Запись в trace файл
 	f, _ := os.Create("trace.out")
@@ -26,10 +31,12 @@ func main() {
 			s.data[j] = byte(i)
 		}
 		fmt.Printf("Allocated %d MB\n", i+1)
-	}
 
-	// Вызов сборщика мусора вручную
-	runtime.GC()
-	fmt.Println("Garbage collector invoked")
+		if i == 50 {
+			// Вызов сборщика мусора вручную
+			runtime.GC()
+			fmt.Println("Garbage collector invoked")
+		}
+	}
 
 }
