@@ -29,7 +29,7 @@ func main() {
 	// Запуск worker-ов
 	for data := range processSiteData(site, runtime.NumCPU()) {
 		// Выводим данные с сайтов
-		fmt.Println(data)
+		log.Println(data)
 	}
 
 }
@@ -40,7 +40,7 @@ func processSiteData(c <-chan SiteData, numWorkers int) <-chan string {
 
 	// оптимизация, мы сразу асинхронно вернем канал в main и начнем из него читать
 	go func() {
-		fmt.Println("Starting workers:", numWorkers)
+		log.Println("Starting workers:", numWorkers)
 		wg := sync.WaitGroup{}
 		for i := 0; i < numWorkers; i++ {
 			wg.Add(1)
