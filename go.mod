@@ -1,13 +1,12 @@
 module practice
 
-go 1.21
-
-toolchain go1.22.3
+go 1.23.2
 
 require (
 	github.com/graphql-go/graphql v0.8.1
 	github.com/hashicorp/vault/api v1.13.0
 	github.com/klauspost/cpuid/v2 v2.2.4
+	github.com/rednafi/circuit-breaker v0.0.0-20241006142934-6da18adf4098
 	github.com/vjeantet/grok v1.0.1
 	golang.org/x/sync v0.2.0
 )
