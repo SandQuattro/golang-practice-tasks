@@ -3,6 +3,19 @@ package main
 import "fmt"
 
 func isMatch(string string, pattern string) bool {
+	if len(pattern) != len(string) {
+		return false
+	}
+
+	for i := 0; i < len(pattern); i++ {
+		if pattern[i] == '?' {
+			continue
+		}
+
+		if string[i] != pattern[i] {
+			return false
+		}
+	}
 	return true
 }
 

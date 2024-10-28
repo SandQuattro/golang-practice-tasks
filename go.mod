@@ -8,6 +8,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.4
 	github.com/rednafi/circuit-breaker v0.0.0-20241006142934-6da18adf4098
 	github.com/vjeantet/grok v1.0.1
+	github.com/ztrue/tracerr v0.4.0
 	golang.org/x/sync v0.2.0
 )
 

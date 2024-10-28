@@ -21,9 +21,9 @@ type LRU struct {
 	mx        sync.RWMutex
 }
 
-type entry struct {
-	key   string
-	value string
+type entry[T any] struct {
+	key   T
+	value T
 }
 
 // NewLRU creates a new LRU cache
@@ -49,7 +49,7 @@ func NewRedis(capacity int) *Redis {
 	}
 }
 
-func (r *Redis) Get(ctx context.Context, key string) (value string, err error) {
+func (r *Redis) Get(ctx context.Context, key string) (value any, err error) {
 	r.mx.RLock()
 	defer r.mx.RUnlock()
 
@@ -76,29 +76,29 @@ func (r *Redis) Set(key, value string) {
 }
 
 // Get retrieves a value from the cache
-func (l *LRU) Get(key string) (string, bool) {
+func (l *LRU) Get(key string) (any, bool) {
 	l.mx.RLock()
 	defer l.mx.RUnlock()
 
 	if ele, ok := l.cache[key]; ok {
 		l.evictList.MoveToFront(ele)
-		return ele.Value.(*entry).value, true
+		return ele.Value.(*entry[any]).value, true
 	}
 	return "", false
 }
 
 // Set adds a value to the cache
-func (l *LRU) Set(key, value string) {
+func (l *LRU) Set(key string, value any) {
 	l.mx.Lock()
 	defer l.mx.Unlock()
 
 	if ele, ok := l.cache[key]; ok {
 		l.evictList.MoveToFront(ele)
-		ele.Value.(*entry).value = value
+		ele.Value.(*entry[any]).value = value
 		return
 	}
 
-	ele := l.evictList.PushFront(&entry{key, value})
+	ele := l.evictList.PushFront(&entry[any]{key, value})
 	l.cache[key] = ele
 
 	if l.evictList.Len() > l.capacity {
@@ -111,7 +111,7 @@ func (l *LRU) removeOldest() {
 	ele := l.evictList.Back()
 	if ele != nil {
 		l.evictList.Remove(ele)
-		delete(l.cache, ele.Value.(*entry).key)
+		delete(l.cache, ele.Value.(*entry[any]).key)
 	}
 }
 
@@ -125,4 +125,5 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(val)
+	fmt.Println(redis)
 }
