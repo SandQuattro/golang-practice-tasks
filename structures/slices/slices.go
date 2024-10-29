@@ -5,7 +5,8 @@ import (
 )
 
 func main() {
-	a1 := make([]int, 0, 5)
+	a1 := make([]int, 0, 5) // len=0 cap=5
+	//a1 := make([]int, 5)  // len=5 cap=5 !!
 	a1 = append(a1, []int{1, 2, 3, 4, 5}...)
 	a2 := append(a1, 6)
 	a3 := append(a2, 7)
