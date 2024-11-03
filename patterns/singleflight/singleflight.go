@@ -30,9 +30,9 @@ type Decorator struct {
 }
 
 type result struct {
-	user  *User
-	error error
-	wg    sync.WaitGroup
+	user *User
+	err  error
+	wg   sync.WaitGroup
 }
 
 func NewDecorator(client IClient) *Decorator {
@@ -44,28 +44,24 @@ func NewDecorator(client IClient) *Decorator {
 
 func (d *Decorator) GetUser(name string) (*User, error) {
 	d.mutex.Lock()
-	res, exists := d.results[name]
-	if !exists {
-		res = &result{}
-		res.wg.Add(1)
-		d.results[name] = res
-		d.mutex.Unlock()
-
-		user, err := d.client.GetUser(name)
-		println("calling api")
-		res.user = user
-		res.error = err
-
-		res.wg.Done()
-	} else {
+	if res, exists := d.results[name]; exists {
 		d.mutex.Unlock()
 		res.wg.Wait()
+		return res.user, res.err
 	}
 
-	if res.error != nil {
-		return nil, res.error
-	}
-	return res.user, nil
+	res := &result{}
+	res.wg.Add(1)
+	d.results[name] = res
+	d.mutex.Unlock()
+
+	user, err := d.client.GetUser(name)
+	println("calling api")
+	res.user = user
+	res.err = err
+
+	res.wg.Done()
+	return res.user, res.err
 }
 
 func main() {
@@ -79,6 +75,18 @@ func main() {
 		go func() {
 			defer wg.Done()
 			value, err := changedClient.GetUser("Vasya")
+			if err != nil {
+				// Обработка ошибки
+			}
+			println(value.Name)
+		}()
+	}
+
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			value, err := changedClient.GetUser("Igor")
 			if err != nil {
 				// Обработка ошибки
 			}
