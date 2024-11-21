@@ -2,30 +2,55 @@ package main
 
 import "fmt"
 
-type Stack[T comparable] struct {
-	data []T
+type MyInt int
+
+// Stack ~ means underlying type int and types based on it
+type Stack[T ~int] struct {
+	stack []T
 }
 
-func (s *Stack[T]) Push(val T) {
-	s.data = append(s.data, val)
+func (s *Stack[T]) Push(data T) {
+	s.stack = append(s.stack, data)
 }
 
 func (s *Stack[T]) Pop() {
-	if len(s.data) > 0 {
-		s.data = s.data[:len(s.data)-1]
+	if len(s.stack) > 0 {
+		s.stack = s.stack[:len(s.stack)-1]
 	}
 }
 
+func (s *Stack[T]) Top() (T, error) {
+	if len(s.stack) > 0 {
+		return s.stack[len(s.stack)-1], nil
+	}
+
+	return -1, fmt.Errorf("stack is empty")
+}
+
+func (s *Stack[T]) IsEmpty() bool {
+	if len(s.stack) == 0 {
+		return true
+	}
+
+	return false
+}
+
 func main() {
-	stack := Stack[int]{
-		data: make([]int, 0),
+	// using here underlying type of MyInt
+	stack := &Stack[int]{
+		stack: make([]int, 0),
 	}
 
 	stack.Push(1)
-	stack.Push(2)
-	fmt.Println(stack)
 
+	fmt.Println(stack.Top())
 	stack.Pop()
-	stack.Pop()
-	fmt.Println(stack)
+	fmt.Println(stack.Top())
+
+	// using here MyInt type
+	stack2 := &Stack[MyInt]{
+		stack: make([]MyInt, 0),
+	}
+	var a MyInt = 5
+	stack2.Push(a)
 }
