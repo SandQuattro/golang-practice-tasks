@@ -52,12 +52,12 @@ func (p *Pool) startWorker() {
 	if p.workersCount < p.maxWorkers {
 		p.workersCount++
 		p.workersWG.Add(1)
-		go p.worker()
+		go p.work()
 	}
 }
 
 // worker обрабатывает задачи из очереди
-func (p *Pool) worker() {
+func (p *Pool) work() {
 	defer func() {
 		p.mu.Lock()
 		p.workersCount--
@@ -84,17 +84,11 @@ func (p *Pool) Close() {
 
 func main() {
 	pool := New(5, 10)
-	defer pool.Close()
-
-	// Создаем WaitGroup для ожидания завершения всех задач
-	var wg sync.WaitGroup
 
 	for i := 0; i < 50; i++ {
 		taskNum := i
-		wg.Add(1)
 
 		err := pool.Submit(func() error {
-			defer wg.Done()
 			fmt.Printf("Starting task %d\n", taskNum)
 			// Имитируем долгую работу
 			time.Sleep(time.Second)
@@ -104,7 +98,6 @@ func main() {
 
 		if err != nil {
 			fmt.Printf("Failed to submit task %d: %s\n", taskNum, err)
-			wg.Done()
 		}
 
 		// Добавляем небольшую задержку между отправкой задач
@@ -112,6 +105,6 @@ func main() {
 	}
 
 	// Ждем завершения всех задач
-	wg.Wait()
+	pool.Close()
 	fmt.Println("All tasks completed")
 }
