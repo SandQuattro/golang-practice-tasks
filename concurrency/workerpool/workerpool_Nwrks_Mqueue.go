@@ -67,8 +67,8 @@ func (p *Pool) work() {
 
 	for {
 		select {
-		case task, ok := <-p.taskQueue:
-			if !ok {
+		case task, opened := <-p.taskQueue:
+			if !opened {
 				return
 			}
 			_ = task() // Выполняем задачу, игнорируя ошибку
