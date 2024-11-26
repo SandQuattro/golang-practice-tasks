@@ -15,9 +15,8 @@ type Pool struct {
 	maxWorkers   int
 	maxQueueSize int
 	taskQueue    chan Task
-	workersCount int
 	workersWG    sync.WaitGroup
-	mu           sync.Mutex
+	workerSem    chan struct{} // Семафор для ограничения количества воркеров
 }
 
 var (
@@ -31,6 +30,7 @@ func New(maxWorkers, maxQueueSize int) *Pool {
 		maxWorkers:   maxWorkers,
 		maxQueueSize: maxQueueSize,
 		taskQueue:    make(chan Task, maxQueueSize),
+		workerSem:    make(chan struct{}, maxWorkers), // Создаем семафор с лимитом воркеров
 	}
 }
 
@@ -46,22 +46,20 @@ func (p *Pool) Submit(task Task) error {
 }
 
 func (p *Pool) startWorker() {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if p.workersCount < p.maxWorkers {
-		p.workersCount++
-		p.workersWG.Add(1)
-		go p.work()
+	select {
+	case p.workerSem <- struct{}{}: // Пытаемся захватить семафор
+	default:
+		return // Если семафор занят, не создаем нового воркера
 	}
+
+	p.workersWG.Add(1)
+	go p.process()
 }
 
 // worker обрабатывает задачи из очереди
-func (p *Pool) work() {
+func (p *Pool) process() {
 	defer func() {
-		p.mu.Lock()
-		p.workersCount--
-		p.mu.Unlock()
+		<-p.workerSem // Освобождаем семафор
 		p.workersWG.Done()
 	}()
 
@@ -101,7 +99,7 @@ func main() {
 		}
 
 		// Добавляем небольшую задержку между отправкой задач
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Millisecond * 50)
 	}
 
 	// Ждем завершения всех задач
