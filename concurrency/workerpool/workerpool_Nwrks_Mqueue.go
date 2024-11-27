@@ -48,12 +48,11 @@ func (p *Pool) Submit(task Task) error {
 func (p *Pool) startWorker() {
 	select {
 	case p.workerSem <- struct{}{}: // Пытаемся захватить семафор
+		p.workersWG.Add(1)
+		go p.process()
 	default:
 		return // Если семафор занят, не создаем нового воркера
 	}
-
-	p.workersWG.Add(1)
-	go p.process()
 }
 
 // worker обрабатывает задачи из очереди
