@@ -4,16 +4,18 @@ import "fmt"
 
 // Sliding window
 func lengthWithoutRepeats(s string) int {
-	left, right := 0, 0
+	answer, left, right := 0, 0, 0
 	uniqueChars := make(map[rune]bool)
-	maxLength := 0
 
+	// do until right pointer did not get to finish
 	for right < len(s) {
-		// here ww are expanding window
+		// here we are expanding window
 		if !uniqueChars[rune(s[right])] {
+			// add char to map
 			uniqueChars[rune(s[right])] = true
+			// updating our result to actual length
+			answer = max(answer, right-left+1)
 			right++
-			maxLength = max(maxLength, len(uniqueChars))
 		} else {
 			// here we collapse our window
 			delete(uniqueChars, rune(s[left]))
@@ -21,9 +23,14 @@ func lengthWithoutRepeats(s string) int {
 		}
 	}
 
-	return maxLength
+	return answer
 }
 
 func main() {
-	fmt.Println(lengthWithoutRepeats("abcbdbefg"))
+	fmt.Println(lengthWithoutRepeats("abcbada"))   // 4
+	fmt.Println(lengthWithoutRepeats("abcbdbefg")) // 5
+	fmt.Println(lengthWithoutRepeats("axbxcxd"))   // 3
+	fmt.Println(lengthWithoutRepeats("aaaaaaa"))   // 1
+	fmt.Println(lengthWithoutRepeats("abcdefg"))   // 7
+
 }
