@@ -8,11 +8,7 @@ func isMatch(string string, pattern string) bool {
 	}
 
 	for i := 0; i < len(pattern); i++ {
-		if pattern[i] == '?' {
-			continue
-		}
-
-		if string[i] != pattern[i] {
+		if string[i] != pattern[i] && pattern[i] != '?' {
 			return false
 		}
 	}
